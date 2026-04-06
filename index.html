@@ -32,6 +32,8 @@
     .btn:hover{background:#f7f7f5}
     .btn.primary{background:#f97316;color:#fff;border-color:#f97316;font-weight:600}
     .btn.primary:hover{background:#ea6c0a}
+    .btn.green{background:#16a34a;color:#fff;border-color:#16a34a;font-weight:600}
+    .btn.green:hover{background:#15803d}
     .btn.ghost{background:transparent;border-color:#e0e0e0}
     .btn.ghost:hover{background:#f7f7f5}
     .btn.danger{color:#dc2626;border-color:#fecaca}
@@ -77,12 +79,10 @@
     .hv-email{font-size:12px;color:#888;margin-top:2px}
     .edit-banner{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 16px;margin-bottom:1rem;display:flex;align-items:center;gap:10px;font-size:13px;color:#c2410c;font-weight:500}
     .edit-banner svg{width:18px;height:18px;fill:#f97316;flex-shrink:0}
-
-    /* Search in tra cuu tab */
     .search-wrap{position:relative;margin-bottom:1rem}
     .search-wrap input{padding-left:36px;font-size:14px;border-radius:10px;border:1px solid #e0e0e0;background:#fff}
     .search-wrap input:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,0.12)}
-    .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#bbb;pointer-events:none}
+    .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none}
     .search-icon svg{width:16px;height:16px;fill:#bbb;display:block}
     .result-count{font-size:12px;color:#888;margin-bottom:10px}
     .hv-result-list{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto}
@@ -93,7 +93,9 @@
     .hv-result-name{font-weight:600;font-size:13px}
     .hv-result-sub{font-size:12px;color:#888;margin-top:1px}
     .hv-result-courses{display:flex;gap:4px;flex-wrap:wrap}
-
+    .excel-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+    .excel-btn:hover{background:#15803d}
+    .excel-btn svg{width:15px;height:15px;fill:white}
     @media(max-width:600px){
       .form-row,.form-row.three{grid-template-columns:1fr}
       .info-grid{grid-template-columns:1fr}
@@ -193,7 +195,7 @@
       <div class="card-title">Tìm kiếm học viên</div>
       <div class="search-wrap">
         <span class="search-icon"><svg viewBox="0 0 24 24"><path d="M21 19l-4.35-4.35A7.5 7.5 0 103.5 11a7.5 7.5 0 0010.15 3.65L18 19l3 3-3-3zm-9.5-4a5.5 5.5 0 110-11 5.5 5.5 0 010 11z"/></svg></span>
-        <input id="hv-search" type="text" placeholder="Gõ tên, email, số điện thoại hoặc khóa học..." oninput="searchHocVien()" autocomplete="off">
+        <input id="hv-search" type="text" placeholder="Gõ tên, email, số điện thoại hoặc tên khóa học..." oninput="searchHocVien()" autocomplete="off">
       </div>
       <div id="hv-result-count" class="result-count"></div>
       <div id="hv-result-list" class="hv-result-list"></div>
@@ -222,9 +224,15 @@
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
         <div class="card-title" style="margin:0">Danh sách tổng hợp</div>
-        <button class="btn primary" onclick="exportCSV()">Xuất CSV</button>
+        <div style="display:flex;gap:8px">
+          <button class="excel-btn" onclick="exportTongHopExcel()">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3.5 3l1.5 2.5L8.5 17H10l1-1.8 1 1.8h1.5l-1.5-2.5 1.5-2.5H12l-1 1.8-1-1.8H8.5z"/></svg>
+            Xuất Excel
+          </button>
+          <button class="btn primary" onclick="exportCSV()">Xuất CSV</button>
+        </div>
       </div>
-      <div style="margin-bottom:12px" class="search-wrap" style="max-width:360px">
+      <div class="search-wrap" style="margin-bottom:12px">
         <span class="search-icon"><svg viewBox="0 0 24 24"><path d="M21 19l-4.35-4.35A7.5 7.5 0 103.5 11a7.5 7.5 0 0010.15 3.65L18 19l3 3-3-3zm-9.5-4a5.5 5.5 0 110-11 5.5 5.5 0 010 11z"/></svg></span>
         <input id="search-all" type="text" placeholder="Tìm kiếm..." oninput="filterTable()" style="max-width:320px">
       </div>
@@ -255,6 +263,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const SUPA_URL='https://gjlgpfpvfbgtsasscxvd.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqbGdwZnB2ZmJndHNhc3NjeHZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDk0OTUsImV4cCI6MjA5MTAyNTQ5NX0.tcWj4xcfDvr8kV6ctSMw08LBJKjBDQ1fLJNIIRebTlo';
@@ -306,13 +315,11 @@ function switchTab(name){
   if(name==='hocvien')searchHocVien();
 }
 
-/* ===== TÌM KIẾM HỌC VIÊN ===== */
 function searchHocVien(){
   const q=(document.getElementById('hv-search')||{value:''}).value.trim().toLowerCase();
   const list=document.getElementById('hv-result-list');
   const count=document.getElementById('hv-result-count');
   if(!list)return;
-
   let results=allHocVien;
   if(q){
     results=allHocVien.filter(hv=>{
@@ -325,14 +332,8 @@ function searchHocVien(){
         ||courses.some(c=>c.toLowerCase().includes(q));
     });
   }
-
   count.textContent=q?`Tìm thấy ${results.length} học viên`:`Tất cả: ${results.length} học viên`;
-
-  if(!results.length){
-    list.innerHTML='<div class="empty">Không tìm thấy học viên nào</div>';
-    return;
-  }
-
+  if(!results.length){list.innerHTML='<div class="empty">Không tìm thấy học viên nào</div>';return;}
   list.innerHTML=results.map(hv=>{
     const courses=allDangKy.filter(d=>d.email_hoc_vien===hv.email).map(d=>{
       const k=allKhoaHoc.find(k=>k.id===d.khoa_hoc_id);return k?k.ten_khoa_hoc:'';
@@ -384,7 +385,6 @@ function showHocVienInfo(email){
   </div>`;
 }
 
-/* ===== NHẬP EMAIL GỢI Ý ===== */
 function onEmailInput(){
   const val=document.getElementById('inp-email').value.trim().toLowerCase();
   const box=document.getElementById('email-suggests');
@@ -478,6 +478,53 @@ function clearForm(){
   selectedCourseIds=[];renderSelectedCourses();
 }
 
+// ===== XUẤT EXCEL THEO KHÓA HỌC =====
+function exportKhoaHocExcel(khId, khTen){
+  const hvList=allDangKy.filter(d=>d.khoa_hoc_id===khId)
+    .map(d=>allHocVien.find(h=>h.email===d.email_hoc_vien))
+    .filter(Boolean);
+
+  if(!hvList.length){showMsg('Khóa học này chưa có học viên nào','error');return;}
+
+  const data=[
+    // Hàng tiêu đề khóa học
+    [`DANH SÁCH HỌC VIÊN - ${khTen.toUpperCase()}`],
+    [`Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}`],
+    [],
+    // Header bảng
+    ['STT','Họ tên','Email','Số điện thoại','Ngày sinh','Facebook','Ghi chú'],
+    // Dữ liệu
+    ...hvList.map((h,i)=>[
+      i+1,
+      h.ho_ten,
+      h.email,
+      h.so_dien_thoai||'',
+      formatDate(h.ngay_sinh),
+      h.link_facebook||'',
+      h.ghi_chu||''
+    ])
+  ];
+
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(data);
+
+  // Style độ rộng cột
+  ws['!cols']=[
+    {wch:5},{wch:25},{wch:30},{wch:15},{wch:15},{wch:35},{wch:30}
+  ];
+
+  // Merge tiêu đề
+  ws['!merges']=[
+    {s:{r:0,c:0},e:{r:0,c:6}},
+    {s:{r:1,c:0},e:{r:1,c:6}}
+  ];
+
+  XLSX.utils.book_append_sheet(wb,ws,'Danh sách');
+  const fileName=`${khTen.replace(/[^a-zA-Z0-9_\u00C0-\u024F\u1E00-\u1EFF ]/g,'_')}_${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.xlsx`;
+  XLSX.writeFile(wb,fileName);
+  showMsg(`Đã xuất Excel: ${hvList.length} học viên`);
+}
+
 function loadKhoaHocInfo(){
   const id=document.getElementById('sel-kh').value;
   const el=document.getElementById('kh-info');
@@ -485,12 +532,19 @@ function loadKhoaHocInfo(){
   const kh=allKhoaHoc.find(k=>k.id===id);if(!kh){el.innerHTML='';return;}
   const hvList=allDangKy.filter(d=>d.khoa_hoc_id===id).map(d=>allHocVien.find(h=>h.email===d.email_hoc_vien)).filter(Boolean);
   el.innerHTML=`<div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
       <div class="card-title" style="margin:0">${kh.ten_khoa_hoc}</div>
-      <span style="background:#fff7ed;color:#f97316;border:1px solid #fed7aa;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:600">${hvList.length} học viên</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="background:#fff7ed;color:#f97316;border:1px solid #fed7aa;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:600">${hvList.length} học viên</span>
+        <button class="excel-btn" onclick="exportKhoaHocExcel('${id}','${kh.ten_khoa_hoc.replace(/'/g,"\\'")}')">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3.5 3l1.5 2.5L8.5 17H10l1-1.8 1 1.8h1.5l-1.5-2.5 1.5-2.5H12l-1 1.8-1-1.8H8.5z"/></svg>
+          Xuất Excel
+        </button>
+      </div>
     </div>
     ${kh.mo_ta?`<p style="color:#888;font-size:13px;margin-bottom:1rem">${kh.mo_ta}</p>`:''}
-    ${hvList.length?`<div class="table-wrap"><table><thead><tr><th>Họ tên</th><th>Email</th><th>Điện thoại</th><th>Ngày sinh</th><th>Ghi chú</th><th></th></tr></thead><tbody>${hvList.map(h=>`<tr>
+    ${hvList.length?`<div class="table-wrap"><table><thead><tr><th>STT</th><th>Họ tên</th><th>Email</th><th>Điện thoại</th><th>Ngày sinh</th><th>Ghi chú</th><th></th></tr></thead><tbody>${hvList.map((h,i)=>`<tr>
+      <td style="color:#888">${i+1}</td>
       <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="width:28px;height:28px;font-size:11px">${initials(h.ho_ten)}</div>${h.ho_ten}</div></td>
       <td>${h.email}</td><td>${h.so_dien_thoai||'—'}</td><td>${formatDate(h.ngay_sinh)}</td><td>${h.ghi_chu||'—'}</td>
       <td><button class="btn edit sm" onclick="editHocVien('${h.email}')">✏️ Sửa</button></td>
@@ -498,6 +552,7 @@ function loadKhoaHocInfo(){
   </div>`;
 }
 
+// ===== TỔNG HỢP =====
 let tableData=[];
 async function loadTongHop(){
   document.getElementById('s-hv').textContent=allHocVien.length;
@@ -526,6 +581,26 @@ function filterTable(){
   if(!q){renderTable(tableData);return;}
   renderTable(tableData.filter(r=>r.ho_ten.toLowerCase().includes(q)||r.email.toLowerCase().includes(q)||(r.ghi_chu||'').toLowerCase().includes(q)||r.courses.some(c=>c.toLowerCase().includes(q))));
 }
+
+// Xuất Excel tổng hợp
+function exportTongHopExcel(){
+  if(!tableData.length){showMsg('Chưa có dữ liệu','error');return;}
+  const data=[
+    ['DANH SÁCH TỔNG HỢP HỌC VIÊN'],
+    [`Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}`],
+    [],
+    ['STT','Họ tên','Email','Số điện thoại','Ngày sinh','Facebook','Ghi chú','Khóa học'],
+    ...tableData.map((r,i)=>[i+1,r.ho_ten,r.email,r.so_dien_thoai||'',formatDate(r.ngay_sinh),r.link_facebook||'',r.ghi_chu||'',r.courses.join(', ')])
+  ];
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(data);
+  ws['!cols']=[{wch:5},{wch:25},{wch:30},{wch:15},{wch:15},{wch:35},{wch:30},{wch:40}];
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:7}},{s:{r:1,c:0},e:{r:1,c:7}}];
+  XLSX.utils.book_append_sheet(wb,ws,'Tổng hợp');
+  XLSX.writeFile(wb,`TongHop_HocVien_${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.xlsx`);
+  showMsg(`Đã xuất Excel: ${tableData.length} học viên`);
+}
+
 function exportCSV(){
   if(!tableData.length)return;
   const rows=[['Họ tên','Email','Điện thoại','Ngày sinh','Facebook','Ghi chú','Khóa học'],...tableData.map(r=>[r.ho_ten,r.email,r.so_dien_thoai||'',formatDate(r.ngay_sinh),r.link_facebook||'',r.ghi_chu||'',r.courses.join('; ')])];
@@ -533,6 +608,7 @@ function exportCSV(){
   const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hoc_vien.csv';a.click();
 }
+
 async function addKhoaHoc(){
   const ten=document.getElementById('inp-kh-ten').value.trim();
   const mo_ta=document.getElementById('inp-kh-mo-ta').value.trim();
