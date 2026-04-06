@@ -36,6 +36,9 @@
     .btn.ghost:hover{background:#f7f7f5}
     .btn.danger{color:#dc2626;border-color:#fecaca}
     .btn.danger:hover{background:#fff5f5}
+    .btn.edit{color:#f97316;border-color:#fed7aa;background:#fff7ed}
+    .btn.edit:hover{background:#ffedd5}
+    .btn.sm{padding:5px 12px;font-size:12px}
     .tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:20px;font-size:12px;color:#c2410c;margin:2px;font-weight:500}
     .tag .remove{cursor:pointer;color:#f97316;font-size:15px;line-height:1}
     .course-list{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;min-height:40px;padding:8px;border:1px solid #ebebeb;border-radius:8px;background:#fafafa}
@@ -68,9 +71,29 @@
     .stat-lbl{font-size:12px;color:#888;font-weight:500}
     #msg{position:fixed;top:1rem;right:1rem;z-index:100;min-width:240px}
     .avatar{width:40px;height:40px;border-radius:50%;background:#fff7ed;border:2px solid #fed7aa;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#f97316;flex-shrink:0}
-    .hv-header{display:flex;align-items:center;gap:14px;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid #f0f0f0}
+    .hv-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid #f0f0f0}
+    .hv-header-left{display:flex;align-items:center;gap:14px}
     .hv-name{font-size:16px;font-weight:700}
     .hv-email{font-size:12px;color:#888;margin-top:2px}
+    .edit-banner{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 16px;margin-bottom:1rem;display:flex;align-items:center;gap:10px;font-size:13px;color:#c2410c;font-weight:500}
+    .edit-banner svg{width:18px;height:18px;fill:#f97316;flex-shrink:0}
+
+    /* Search in tra cuu tab */
+    .search-wrap{position:relative;margin-bottom:1rem}
+    .search-wrap input{padding-left:36px;font-size:14px;border-radius:10px;border:1px solid #e0e0e0;background:#fff}
+    .search-wrap input:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,0.12)}
+    .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#bbb;pointer-events:none}
+    .search-icon svg{width:16px;height:16px;fill:#bbb;display:block}
+    .result-count{font-size:12px;color:#888;margin-bottom:10px}
+    .hv-result-list{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto}
+    .hv-result-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid #ebebeb;border-radius:10px;background:#fff;cursor:pointer;transition:all 0.1s}
+    .hv-result-item:hover{border-color:#fed7aa;background:#fffbf7}
+    .hv-result-item.selected{border-color:#f97316;background:#fff7ed}
+    .hv-result-left{display:flex;align-items:center;gap:10px}
+    .hv-result-name{font-weight:600;font-size:13px}
+    .hv-result-sub{font-size:12px;color:#888;margin-top:1px}
+    .hv-result-courses{display:flex;gap:4px;flex-wrap:wrap}
+
     @media(max-width:600px){
       .form-row,.form-row.three{grid-template-columns:1fr}
       .info-grid{grid-template-columns:1fr}
@@ -100,7 +123,12 @@
     <button class="tab" onclick="switchTab('quanly')">Quản lý khóa học</button>
   </div>
 
+  <!-- NHẬP / SỬA HỌC VIÊN -->
   <div id="tab-nhap" class="panel active">
+    <div id="edit-banner" style="display:none" class="edit-banner">
+      <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+      Đang chỉnh sửa thông tin học viên — chỉnh sửa xong nhấn <strong style="margin-left:4px">"Lưu học viên"</strong>
+    </div>
     <div class="card">
       <div class="card-title">Thông tin học viên</div>
       <div class="form-row">
@@ -148,22 +176,32 @@
         <span style="color:#aaa;font-size:12px;padding:2px">Chưa chọn khóa học nào</span>
       </div>
     </div>
-    <div style="display:flex;justify-content:flex-end;gap:8px">
-      <button class="btn ghost" onclick="clearForm()">Xóa form</button>
-      <button class="btn primary" onclick="saveHocVien()">Lưu học viên</button>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div id="btn-delete-hv" style="display:none">
+        <button class="btn danger" onclick="deleteHocVien()">Xóa học viên này</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn ghost" onclick="clearForm()">Xóa form</button>
+        <button class="btn primary" onclick="saveHocVien()">Lưu học viên</button>
+      </div>
     </div>
   </div>
 
+  <!-- TRA CỨU HỌC VIÊN -->
   <div id="tab-hocvien" class="panel">
     <div class="card">
-      <label>Chọn học viên</label>
-      <select id="sel-hv" onchange="loadHocVienInfo()" style="max-width:420px">
-        <option value="">-- Chọn học viên --</option>
-      </select>
+      <div class="card-title">Tìm kiếm học viên</div>
+      <div class="search-wrap">
+        <span class="search-icon"><svg viewBox="0 0 24 24"><path d="M21 19l-4.35-4.35A7.5 7.5 0 103.5 11a7.5 7.5 0 0010.15 3.65L18 19l3 3-3-3zm-9.5-4a5.5 5.5 0 110-11 5.5 5.5 0 010 11z"/></svg></span>
+        <input id="hv-search" type="text" placeholder="Gõ tên, email, số điện thoại hoặc khóa học..." oninput="searchHocVien()" autocomplete="off">
+      </div>
+      <div id="hv-result-count" class="result-count"></div>
+      <div id="hv-result-list" class="hv-result-list"></div>
     </div>
     <div id="hv-info"></div>
   </div>
 
+  <!-- TRA CỨU KHÓA HỌC -->
   <div id="tab-khoahoc" class="panel">
     <div class="card">
       <label>Chọn khóa học</label>
@@ -174,6 +212,7 @@
     <div id="kh-info"></div>
   </div>
 
+  <!-- TỔNG HỢP -->
   <div id="tab-tonghop" class="panel">
     <div class="stat-grid">
       <div class="stat-card"><div class="stat-num" id="s-hv">-</div><div class="stat-lbl">Học viên</div></div>
@@ -185,18 +224,20 @@
         <div class="card-title" style="margin:0">Danh sách tổng hợp</div>
         <button class="btn primary" onclick="exportCSV()">Xuất CSV</button>
       </div>
-      <div style="margin-bottom:12px">
-        <input id="search-all" type="text" placeholder="Tìm kiếm học viên, khóa học, ghi chú..." oninput="filterTable()" style="max-width:340px">
+      <div style="margin-bottom:12px" class="search-wrap" style="max-width:360px">
+        <span class="search-icon"><svg viewBox="0 0 24 24"><path d="M21 19l-4.35-4.35A7.5 7.5 0 103.5 11a7.5 7.5 0 0010.15 3.65L18 19l3 3-3-3zm-9.5-4a5.5 5.5 0 110-11 5.5 5.5 0 010 11z"/></svg></span>
+        <input id="search-all" type="text" placeholder="Tìm kiếm..." oninput="filterTable()" style="max-width:320px">
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Họ tên</th><th>Email</th><th>Điện thoại</th><th>Ngày sinh</th><th>Facebook</th><th>Ghi chú</th><th>Khóa học</th></tr></thead>
+          <thead><tr><th>Họ tên</th><th>Email</th><th>Điện thoại</th><th>Ngày sinh</th><th>Facebook</th><th>Ghi chú</th><th>Khóa học</th><th></th></tr></thead>
           <tbody id="main-tbody"></tbody>
         </table>
       </div>
     </div>
   </div>
 
+  <!-- QUẢN LÝ KHÓA HỌC -->
   <div id="tab-quanly" class="panel">
     <div class="card">
       <div class="card-title">Thêm khóa học mới</div>
@@ -218,7 +259,7 @@
 const SUPA_URL='https://gjlgpfpvfbgtsasscxvd.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqbGdwZnB2ZmJndHNhc3NjeHZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDk0OTUsImV4cCI6MjA5MTAyNTQ5NX0.tcWj4xcfDvr8kV6ctSMw08LBJKjBDQ1fLJNIIRebTlo';
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
-let allHocVien=[],allKhoaHoc=[],selectedCourseIds=[],allDangKy=[];
+let allHocVien=[],allKhoaHoc=[],selectedCourseIds=[],allDangKy=[],selectedHvEmail=null;
 
 function showMsg(txt,type='success'){
   const el=document.getElementById('msg');
@@ -232,6 +273,12 @@ function formatDate(d){
 function initials(name){
   return name.split(' ').slice(-2).map(w=>w[0]).join('').toUpperCase();
 }
+function highlight(text,q){
+  if(!q)return text;
+  const re=new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi');
+  return text.replace(re,'<mark style="background:#ffedd5;color:#c2410c;border-radius:3px;padding:0 2px">$1</mark>');
+}
+
 async function loadAll(){
   const[{data:hv},{data:kh},{data:dk}]=await Promise.all([
     sb.from('hoc_vien').select('*').order('ho_ten'),
@@ -240,13 +287,15 @@ async function loadAll(){
   ]);
   allHocVien=hv||[];allKhoaHoc=kh||[];allDangKy=dk||[];
   populateSelects();
+  searchHocVien();
 }
+
 function populateSelects(){
   document.getElementById('sel-course').innerHTML='<option value="">-- Chọn khóa học --</option>'+allKhoaHoc.map(k=>`<option value="${k.id}">${k.ten_khoa_hoc}</option>`).join('');
-  document.getElementById('sel-hv').innerHTML='<option value="">-- Chọn học viên --</option>'+allHocVien.map(h=>`<option value="${h.email}">${h.ho_ten} (${h.email})</option>`).join('');
   document.getElementById('sel-kh').innerHTML='<option value="">-- Chọn khóa học --</option>'+allKhoaHoc.map(k=>`<option value="${k.id}">${k.ten_khoa_hoc}</option>`).join('');
   renderKhList();
 }
+
 function switchTab(name){
   document.querySelectorAll('.tab').forEach((t,i)=>{
     t.classList.toggle('active',['nhap','hocvien','khoahoc','tonghop','quanly'][i]===name);
@@ -254,10 +303,94 @@ function switchTab(name){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   if(name==='tonghop')loadTongHop();
+  if(name==='hocvien')searchHocVien();
 }
+
+/* ===== TÌM KIẾM HỌC VIÊN ===== */
+function searchHocVien(){
+  const q=(document.getElementById('hv-search')||{value:''}).value.trim().toLowerCase();
+  const list=document.getElementById('hv-result-list');
+  const count=document.getElementById('hv-result-count');
+  if(!list)return;
+
+  let results=allHocVien;
+  if(q){
+    results=allHocVien.filter(hv=>{
+      const courses=allDangKy.filter(d=>d.email_hoc_vien===hv.email).map(d=>{
+        const k=allKhoaHoc.find(k=>k.id===d.khoa_hoc_id);return k?k.ten_khoa_hoc:'';
+      });
+      return hv.ho_ten.toLowerCase().includes(q)
+        ||hv.email.toLowerCase().includes(q)
+        ||(hv.so_dien_thoai||'').includes(q)
+        ||courses.some(c=>c.toLowerCase().includes(q));
+    });
+  }
+
+  count.textContent=q?`Tìm thấy ${results.length} học viên`:`Tất cả: ${results.length} học viên`;
+
+  if(!results.length){
+    list.innerHTML='<div class="empty">Không tìm thấy học viên nào</div>';
+    return;
+  }
+
+  list.innerHTML=results.map(hv=>{
+    const courses=allDangKy.filter(d=>d.email_hoc_vien===hv.email).map(d=>{
+      const k=allKhoaHoc.find(k=>k.id===d.khoa_hoc_id);return k?k.ten_khoa_hoc:'';
+    }).filter(Boolean);
+    const isSelected=selectedHvEmail===hv.email;
+    return`<div class="hv-result-item${isSelected?' selected':''}" onclick="selectHocVien('${hv.email}')">
+      <div class="hv-result-left">
+        <div class="avatar" style="width:36px;height:36px;font-size:13px">${initials(hv.ho_ten)}</div>
+        <div>
+          <div class="hv-result-name">${highlight(hv.ho_ten,q)}</div>
+          <div class="hv-result-sub">${highlight(hv.email,q)}${hv.so_dien_thoai?' · '+highlight(hv.so_dien_thoai,q):''}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="hv-result-courses">${courses.slice(0,3).map(c=>`<span class="badge" style="font-size:10px">${highlight(c,q)}</span>`).join('')}${courses.length>3?`<span style="font-size:11px;color:#888">+${courses.length-3}</span>`:''}</div>
+        <button class="btn edit sm" onclick="event.stopPropagation();editHocVien('${hv.email}')">✏️ Sửa</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectHocVien(email){
+  selectedHvEmail=email;
+  searchHocVien();
+  showHocVienInfo(email);
+  document.getElementById('hv-info').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function showHocVienInfo(email){
+  const el=document.getElementById('hv-info');
+  const hv=allHocVien.find(h=>h.email===email);if(!hv){el.innerHTML='';return;}
+  const courses=allDangKy.filter(d=>d.email_hoc_vien===email).map(d=>{const k=allKhoaHoc.find(k=>k.id===d.khoa_hoc_id);return k?k.ten_khoa_hoc:'?';});
+  el.innerHTML=`<div class="card">
+    <div class="hv-header">
+      <div class="hv-header-left">
+        <div class="avatar">${initials(hv.ho_ten)}</div>
+        <div><div class="hv-name">${hv.ho_ten}</div><div class="hv-email">${hv.email}</div></div>
+      </div>
+      <button class="btn edit" onclick="editHocVien('${hv.email}')">✏️ Sửa thông tin</button>
+    </div>
+    <div class="info-grid">
+      <div class="info-cell"><div class="info-cell-label">Điện thoại</div><div class="info-cell-val">${hv.so_dien_thoai||'—'}</div></div>
+      <div class="info-cell"><div class="info-cell-label">Ngày sinh</div><div class="info-cell-val">${formatDate(hv.ngay_sinh)}</div></div>
+      <div class="info-cell"><div class="info-cell-label">Facebook</div><div class="info-cell-val">${hv.link_facebook?`<a href="${hv.link_facebook}" target="_blank">${hv.link_facebook}</a>`:'—'}</div></div>
+      <div class="info-cell"><div class="info-cell-label">Số khóa học</div><div class="info-cell-val" style="color:#f97316;font-weight:700">${courses.length} khóa</div></div>
+      <div class="info-cell full"><div class="info-cell-label">Ghi chú</div><div class="info-cell-val">${hv.ghi_chu||'—'}</div></div>
+      <div class="info-cell full"><div class="info-cell-label">Khóa học đã học</div><div class="info-cell-val" style="margin-top:4px">${courses.length?courses.map(c=>`<span class="badge">${c}</span>`).join(' '):'Chưa đăng ký khóa học nào'}</div></div>
+    </div>
+  </div>`;
+}
+
+/* ===== NHẬP EMAIL GỢI Ý ===== */
 function onEmailInput(){
-  const val=document.getElementById('inp-email').value.toLowerCase();
+  const val=document.getElementById('inp-email').value.trim().toLowerCase();
   const box=document.getElementById('email-suggests');
+  const isExisting=allHocVien.some(h=>h.email.toLowerCase()===val);
+  document.getElementById('edit-banner').style.display=isExisting?'flex':'none';
+  document.getElementById('btn-delete-hv').style.display=isExisting?'block':'none';
   if(!val){box.style.display='none';return;}
   const matches=allHocVien.filter(h=>h.email.toLowerCase().includes(val)||h.ho_ten.toLowerCase().includes(val));
   if(!matches.length){box.style.display='none';return;}
@@ -265,6 +398,7 @@ function onEmailInput(){
   box.style.display='block';
 }
 function hideSuggest(){setTimeout(()=>{document.getElementById('email-suggests').style.display='none';},150);}
+
 function fillHocVien(email){
   const hv=allHocVien.find(h=>h.email===email);if(!hv)return;
   document.getElementById('inp-email').value=hv.email;
@@ -273,9 +407,20 @@ function fillHocVien(email){
   document.getElementById('inp-fb').value=hv.link_facebook||'';
   document.getElementById('inp-ngaysinh').value=hv.ngay_sinh||'';
   document.getElementById('inp-ghichu').value=hv.ghi_chu||'';
+  document.getElementById('edit-banner').style.display='flex';
+  document.getElementById('btn-delete-hv').style.display='block';
+  document.getElementById('inp-email').readOnly=true;
+  document.getElementById('inp-email').style.background='#f5f5f5';
   selectedCourseIds=allDangKy.filter(d=>d.email_hoc_vien===email).map(d=>d.khoa_hoc_id);
   renderSelectedCourses();
 }
+
+function editHocVien(email){
+  fillHocVien(email);
+  switchTab('nhap');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
 function addCourseToList(){
   const id=document.getElementById('sel-course').value;
   if(!id)return;
@@ -292,6 +437,7 @@ function renderSelectedCourses(){
   }).join('');
 }
 function removeCourse(id){selectedCourseIds=selectedCourseIds.filter(x=>x!==id);renderSelectedCourses();}
+
 async function saveHocVien(){
   const email=document.getElementById('inp-email').value.trim();
   const ten=document.getElementById('inp-ten').value.trim();
@@ -311,31 +457,27 @@ async function saveHocVien(){
   for(const id of toRemove)await sb.from('dang_ky').delete().eq('email_hoc_vien',email).eq('khoa_hoc_id',id);
   showMsg('Đã lưu thành công!');clearForm();await loadAll();
 }
+
+async function deleteHocVien(){
+  const email=document.getElementById('inp-email').value.trim();
+  if(!email)return;
+  const hv=allHocVien.find(h=>h.email===email);
+  if(!confirm(`Xóa học viên "${hv?hv.ho_ten:email}"?\nTất cả đăng ký khóa học cũng sẽ bị xóa.`))return;
+  await sb.from('dang_ky').delete().eq('email_hoc_vien',email);
+  const{error}=await sb.from('hoc_vien').delete().eq('email',email);
+  if(error){showMsg('Lỗi xóa: '+error.message,'error');return;}
+  showMsg('Đã xóa học viên');clearForm();await loadAll();
+}
+
 function clearForm(){
   ['inp-email','inp-ten','inp-sdt','inp-fb','inp-ngaysinh','inp-ghichu'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('inp-email').readOnly=false;
+  document.getElementById('inp-email').style.background='';
+  document.getElementById('edit-banner').style.display='none';
+  document.getElementById('btn-delete-hv').style.display='none';
   selectedCourseIds=[];renderSelectedCourses();
 }
-function loadHocVienInfo(){
-  const email=document.getElementById('sel-hv').value;
-  const el=document.getElementById('hv-info');
-  if(!email){el.innerHTML='';return;}
-  const hv=allHocVien.find(h=>h.email===email);if(!hv){el.innerHTML='';return;}
-  const courses=allDangKy.filter(d=>d.email_hoc_vien===email).map(d=>{const k=allKhoaHoc.find(k=>k.id===d.khoa_hoc_id);return k?k.ten_khoa_hoc:'?';});
-  el.innerHTML=`<div class="card">
-    <div class="hv-header">
-      <div class="avatar">${initials(hv.ho_ten)}</div>
-      <div><div class="hv-name">${hv.ho_ten}</div><div class="hv-email">${hv.email}</div></div>
-    </div>
-    <div class="info-grid">
-      <div class="info-cell"><div class="info-cell-label">Điện thoại</div><div class="info-cell-val">${hv.so_dien_thoai||'—'}</div></div>
-      <div class="info-cell"><div class="info-cell-label">Ngày sinh</div><div class="info-cell-val">${formatDate(hv.ngay_sinh)}</div></div>
-      <div class="info-cell"><div class="info-cell-label">Facebook</div><div class="info-cell-val">${hv.link_facebook?`<a href="${hv.link_facebook}" target="_blank">${hv.link_facebook}</a>`:'—'}</div></div>
-      <div class="info-cell"><div class="info-cell-label">Số khóa học</div><div class="info-cell-val" style="color:#f97316;font-weight:700">${courses.length} khóa</div></div>
-      <div class="info-cell full"><div class="info-cell-label">Ghi chú</div><div class="info-cell-val">${hv.ghi_chu||'—'}</div></div>
-      <div class="info-cell full"><div class="info-cell-label">Khóa học đã học</div><div class="info-cell-val" style="margin-top:4px">${courses.length?courses.map(c=>`<span class="badge">${c}</span>`).join(' '):'Chưa đăng ký khóa học nào'}</div></div>
-    </div>
-  </div>`;
-}
+
 function loadKhoaHocInfo(){
   const id=document.getElementById('sel-kh').value;
   const el=document.getElementById('kh-info');
@@ -348,9 +490,14 @@ function loadKhoaHocInfo(){
       <span style="background:#fff7ed;color:#f97316;border:1px solid #fed7aa;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:600">${hvList.length} học viên</span>
     </div>
     ${kh.mo_ta?`<p style="color:#888;font-size:13px;margin-bottom:1rem">${kh.mo_ta}</p>`:''}
-    ${hvList.length?`<div class="table-wrap"><table><thead><tr><th>Họ tên</th><th>Email</th><th>Điện thoại</th><th>Ngày sinh</th><th>Ghi chú</th></tr></thead><tbody>${hvList.map(h=>`<tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="width:28px;height:28px;font-size:11px">${initials(h.ho_ten)}</div>${h.ho_ten}</div></td><td>${h.email}</td><td>${h.so_dien_thoai||'—'}</td><td>${formatDate(h.ngay_sinh)}</td><td>${h.ghi_chu||'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Chưa có học viên nào đăng ký khóa học này</div>'}
+    ${hvList.length?`<div class="table-wrap"><table><thead><tr><th>Họ tên</th><th>Email</th><th>Điện thoại</th><th>Ngày sinh</th><th>Ghi chú</th><th></th></tr></thead><tbody>${hvList.map(h=>`<tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="width:28px;height:28px;font-size:11px">${initials(h.ho_ten)}</div>${h.ho_ten}</div></td>
+      <td>${h.email}</td><td>${h.so_dien_thoai||'—'}</td><td>${formatDate(h.ngay_sinh)}</td><td>${h.ghi_chu||'—'}</td>
+      <td><button class="btn edit sm" onclick="editHocVien('${h.email}')">✏️ Sửa</button></td>
+    </tr>`).join('')}</tbody></table></div>`:'<div class="empty">Chưa có học viên nào đăng ký khóa học này</div>'}
   </div>`;
 }
+
 let tableData=[];
 async function loadTongHop(){
   document.getElementById('s-hv').textContent=allHocVien.length;
@@ -364,13 +511,14 @@ async function loadTongHop(){
 }
 function renderTable(data){
   const tbody=document.getElementById('main-tbody');
-  if(!data.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty">Chưa có dữ liệu</div></td></tr>';return;}
+  if(!data.length){tbody.innerHTML='<tr><td colspan="8"><div class="empty">Chưa có dữ liệu</div></td></tr>';return;}
   tbody.innerHTML=data.map(r=>`<tr>
     <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="width:28px;height:28px;font-size:11px">${initials(r.ho_ten)}</div>${r.ho_ten}</div></td>
     <td>${r.email}</td><td>${r.so_dien_thoai||'—'}</td><td>${formatDate(r.ngay_sinh)}</td>
     <td>${r.link_facebook?`<a href="${r.link_facebook}" target="_blank" style="color:#f97316">Xem</a>`:'—'}</td>
     <td>${r.ghi_chu||'—'}</td>
     <td>${r.courses.length?r.courses.map(c=>`<span class="badge">${c}</span>`).join(' '):'—'}</td>
+    <td><button class="btn edit sm" onclick="editHocVien('${r.email}')">✏️ Sửa</button></td>
   </tr>`).join('');
 }
 function filterTable(){
@@ -406,7 +554,7 @@ function renderKhList(){
   if(!allKhoaHoc.length){el.innerHTML='<div class="empty">Chưa có khóa học nào</div>';return;}
   el.innerHTML=`<table><thead><tr><th>Tên khóa học</th><th>Mô tả</th><th>Số HV</th><th></th></tr></thead><tbody>${allKhoaHoc.map(k=>{
     const cnt=allDangKy.filter(d=>d.khoa_hoc_id===k.id).length;
-    return`<tr><td style="font-weight:600">${k.ten_khoa_hoc}</td><td>${k.mo_ta||'—'}</td><td><span style="color:#f97316;font-weight:700">${cnt}</span></td><td><button class="btn danger" onclick="deleteKhoaHoc('${k.id}')">Xóa</button></td></tr>`;
+    return`<tr><td style="font-weight:600">${k.ten_khoa_hoc}</td><td>${k.mo_ta||'—'}</td><td><span style="color:#f97316;font-weight:700">${cnt}</span></td><td><button class="btn danger sm" onclick="deleteKhoaHoc('${k.id}')">Xóa</button></td></tr>`;
   }).join('')}</tbody></table>`;
 }
 loadAll();
